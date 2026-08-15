@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アイラッシュ カルテ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF5F1;
+    --card:#FFFFFF;
+    --ink:#3E332E;
+    --muted:#9C8A82;
+    --accent:#B3697A;
+    --accent-deep:#8F4F5E;
+    --gold:#C9A66B;
+    --line:#E7D9CF;
+    --line-soft:#F1E6DE;
+    --sage:#8C9A85;
+    --danger:#B25C4F;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #FDF0EA 0%, var(--bg) 55%);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:64px;
+  }
+  header{
+    padding:34px 20px 22px;
+    text-align:center;
+    position:relative;
+  }
+  header::after{
+    content:"";
+    display:block;
+    width:64px;
+    height:2px;
+    background:var(--gold);
+    margin:14px auto 0;
+    opacity:.7;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:.35em;
+    color:var(--accent-deep);
+    text-transform:uppercase;
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:26px;
+    margin:0;
+    letter-spacing:.06em;
+  }
+  .sub{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:8px;
+    letter-spacing:.04em;
+  }
+
+  main{
+    max-width:520px;
+    margin:0 auto;
+    padding:0 16px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--line-soft);
+    box-shadow:0 10px 30px -18px rgba(94,58,53,.35);
+    padding:22px 18px 20px;
+    margin-bottom:18px;
+  }
+
+  .form-card{ position:relative; overflow:hidden; }
+  .form-card::before{
+    content:"";
+    position:absolute; inset:0 0 auto 0; height:4px;
+    background:linear-gradient(90deg, var(--accent), var(--gold));
+  }
+
+  .form-title{
+    font-family:'Shippori Mincho', serif;
+    font-size:16px;
+    font-weight:700;
+    margin:0 0 16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .form-title .dot{
+    width:7px;height:7px;border-radius:50%;background:var(--accent);
+    display:inline-block;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .field{ margin-bottom:10px; }
+  .field label{
+    display:block;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.08em;
+    margin-bottom:5px;
+  }
+  input[type=date], input[type=text], textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:15px;
+    color:var(--ink);
+    background:#FDFBFA;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    outline:none;
+    transition:border-color .15s, background .15s;
+  }
+  input:focus, textarea:focus{
+    border-color:var(--accent);
+    background:#fff;
+  }
+  textarea{ resize:vertical; min-height:52px; line-height:1.5; }
+
+  .zone-label-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    margin-top:6px;
+    margin-bottom:8px;
+  }
+  .zone-label-row .field label{
+    text-align:center;
+    font-size:11px;
+    color:var(--accent-deep);
+    font-weight:700;
+  }
+  .zone-label-row textarea{
+    min-height:56px;
+    font-size:13px;
+    padding:8px;
+  }
+
+  .eyes-wrap{
+    margin:4px 0 14px;
+    padding:10px 4px 4px;
+    border-top:1px dashed var(--line);
+    border-bottom:1px dashed var(--line);
+  }
+  .eyes-svg{ width:100%; height:auto; display:block; }
+  .eye-caption{
+    display:flex;
+    justify-content:space-between;
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:.1em;
+    padding:2px 10px 0;
+  }
+
+  .btn{
+    appearance:none;
+    border:none;
+    border-radius:999px;
+    padding:12px 20px;
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:.05em;
+    cursor:pointer;
+  }
+  .btn-primary{
+    width:100%;
+    background:linear-gradient(90deg, var(--accent), var(--accent-deep));
+    color:#fff;
+    box-shadow:0 10px 20px -10px rgba(143,79,94,.6);
+  }
+  .btn-primary:active{ transform:translateY(1px); }
+  .btn-ghost{
+    background:none;
+    color:var(--muted);
+    font-size:12px;
+    padding:8px 10px;
+    text-decoration:underline;
+  }
+
+  .history-title{
+    font-family:'Shippori Mincho', serif;
+    font-size:15px;
+    margin:26px 4px 10px;
+    color:var(--accent-deep);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .history-title::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  .customer-title{
+    font-family:'Shippori Mincho', serif;
+    font-size:14px;
+    font-weight:700;
+    color:var(--ink);
+    margin:20px 2px 8px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .customer-title::before{
+    content:"";
+    width:4px; height:14px;
+    background:var(--accent);
+    border-radius:2px;
+    display:inline-block;
+  }
+  .customer-count{
+    font-size:11px;
+    color:var(--muted);
+    font-weight:400;
+    font-family:'Zen Kaku Gothic New', sans-serif;
+  }
+
+  .entry{
+    background:var(--card);
+    border:1px solid var(--line-soft);
+    border-radius:14px;
+    padding:14px 16px;
+    margin-bottom:12px;
+  }
+  .entry-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:8px;
+  }
+  .entry-date{
+    font-weight:700;
+    font-size:14px;
+  }
+  .entry-staff{
+    font-size:12px;
+    color:var(--muted);
+  }
+  .entry-cond{
+    font-size:12px;
+    color:var(--sage);
+    margin-bottom:8px;
+  }
+  .entry-zones{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .zone-box{
+    background:var(--bg);
+    border-radius:8px;
+    padding:7px 8px;
+    font-size:12px;
+    min-height:34px;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .zone-box .zk{
+    display:block;
+    font-size:10px;
+    color:var(--accent-deep);
+    font-weight:700;
+    margin-bottom:2px;
+  }
+  .entry-actions{
+    display:flex;
+    gap:14px;
+    justify-content:flex-end;
+  }
+  .entry-actions button{
+    background:none;
+    border:none;
+    font-size:12px;
+    color:var(--muted);
+    cursor:pointer;
+    padding:2px 4px;
+  }
+  .entry-actions button.del{ color:var(--danger); }
+
+  .empty{
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    padding:30px 10px;
+  }
+
+  .status-msg{
+    text-align:center;
+    font-size:11px;
+    color:var(--sage);
+    height:16px;
+    margin-top:8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Eyelash Record</p>
+  <h1>アイラッシュ カルテ</h1>
+  <p class="sub">施術内容をその場でスマホ入力・保存</p>
+</header>
+
+<main>
+
+  <section class="card form-card">
+    <p class="form-title" id="formTitle"><span class="dot"></span>新規カルテを入力</p>
+
+    <div class="field">
+      <label for="fName">お客様のお名前</label>
+      <input type="text" id="fName" placeholder="例）山田 花子">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="fDate">年月日</label>
+        <input type="date" id="fDate">
+      </div>
+      <div class="field">
+        <label for="fStaff">担当</label>
+        <input type="text" id="fStaff" placeholder="担当者名">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fCond">体調</label>
+      <input type="text" id="fCond" placeholder="お客様の体調・肌状態など">
+    </div>
+
+    <div class="zone-label-row">
+      <div class="field">
+        <label>目頭</label>
+        <textarea id="fInner" placeholder="デザイン・本数など"></textarea>
+      </div>
+      <div class="field">
+        <label>真ん中</label>
+        <textarea id="fMiddle" placeholder="デザイン・本数など"></textarea>
+      </div>
+      <div class="field">
+        <label>右（目尻）</label>
+        <textarea id="fOuter" placeholder="デザイン・本数など"></textarea>
+      </div>
+    </div>
+
+    <div class="eyes-wrap">
+      <svg class="eyes-svg" viewBox="0 0 320 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- left eye -->
+        <g stroke="#5C4A44" stroke-width="1.3" stroke-linecap="round">
+          <path d="M20 55 Q60 30 100 55" fill="none"/>
+          <path d="M20 55 Q60 68 100 55" fill="none" stroke-opacity=".5"/>
+          <path d="M28 52 L18 42"/><path d="M38 48 L30 36"/><path d="M50 45 L44 32"/>
+          <path d="M62 44 L60 30"/><path d="M74 45 L78 32"/><path d="M86 48 L94 37"/><path d="M94 52 L104 44"/>
+        </g>
+        <!-- right eye -->
+        <g stroke="#5C4A44" stroke-width="1.3" stroke-linecap="round">
+          <path d="M220 55 Q260 30 300 55" fill="none"/>
+          <path d="M220 55 Q260 68 300 55" fill="none" stroke-opacity=".5"/>
+          <path d="M228 52 L218 42"/><path d="M238 48 L230 36"/><path d="M250 45 L244 32"/>
+          <path d="M262 44 L260 30"/><path d="M274 45 L278 32"/><path d="M286 48 L294 37"/><path d="M294 52 L304 44"/>
+        </g>
+      </svg>
+      <div class="eye-caption"><span>目頭側</span><span>真ん中</span><span>目尻（右）</span></div>
+    </div>
+
+    <div class="field">
+      <label for="fRemarks">備考</label>
+      <textarea id="fRemarks" placeholder="次回への申し送り・お客様のご要望など"></textarea>
+    </div>
+
+    <button class="btn btn-primary" id="saveBtn">この内容を保存する</button>
+    <p class="status-msg" id="statusMsg"></p>
+    <div style="text-align:center;">
+      <button class="btn-ghost" id="cancelEditBtn" style="display:none;">編集をキャンセル</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <p class="form-title"><span class="dot"></span>Google スプレッドシート連携</p>
+    <p style="font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.6;">
+      下の設定を一度だけ済ませておくと、保存ボタンでそのままスプレッドシートにデータが送られます。
+    </p>
+
+    <div class="field">
+      <label for="fSheetUrl">スプレッドシートのURL（閲覧用）</label>
+      <input type="text" id="fSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/...">
+    </div>
+    <div class="field">
+      <label for="fWebAppUrl">Apps Script ウェブアプリURL（送信用）</label>
+      <input type="text" id="fWebAppUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+      <button class="btn" id="saveSettingsBtn" style="flex:1;min-width:120px;background:var(--accent-deep);color:#fff;">設定を保存</button>
+      <a class="btn" id="openSheetBtn" href="#" target="_blank" style="flex:1;min-width:120px;background:var(--sage);color:#fff;text-align:center;text-decoration:none;">シートを開く</a>
+      <button class="btn" id="pullBtn" style="flex:1;min-width:120px;background:var(--gold);color:#fff;">最新データを取得</button>
+    </div>
+    <p class="status-msg" id="sheetStatusMsg"></p>
+    <p class="btn-ghost" id="howToLink" style="text-align:center;cursor:pointer;">設定方法を見る</p>
+    <div id="howToBox" style="display:none;font-size:12px;line-height:1.9;color:var(--ink);background:var(--bg);border-radius:10px;padding:12px 14px;margin-top:6px;">
+      ① Googleスプレッドシートを新規作成<br>
+      ② メニューの「拡張機能」→「Apps Script」を開く<br>
+      ③ 中身を全部消して、渡したコードを貼り付け<br>
+      ④ 右上「デプロイ」→「新しいデプロイ」→種類はウェブアプリを選択<br>
+      ⑤「アクセスできるユーザー」を全員にしてデプロイ<br>
+      ⑥ 発行されたURLを上の「送信用」欄に貼る<br>
+      ⑦ スプレッドシートのURLは上の「閲覧用」欄に貼る
+    </div>
+  </section>
+
+  <p class="history-title">これまでのカルテ</p>
+  <div id="historyList"></div>
+
+</main>
+
+<script>
+const STORAGE_KEY = 'eyelash_karte_entries';
+let entries = [];
+let editingId = null;
+
+const $ = (id) => document.getElementById(id);
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function formDateDisplay(iso){
+  if(!iso) return '（日付未入力）';
+  const [y,m,d] = iso.split('-');
+  return `${y}年${m}月${d}日`;
+}
+
+async function loadEntries(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    entries = res ? JSON.parse(res.value) : [];
+  }catch(e){
+    entries = [];
+  }
+  renderHistory();
+}
+
+async function persist(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
+  }catch(e){
+    showStatus('保存に失敗しました。もう一度お試しください。', true);
+  }
+}
+
+function showStatus(msg, isError){
+  const el = $('statusMsg');
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--danger)' : 'var(--sage)';
+  setTimeout(()=>{ if(el.textContent===msg) el.textContent=''; }, 2200);
+}
+
+function resetForm(){
+  $('fName').value = '';
+  $('fDate').value = todayStr();
+  $('fStaff').value = '';
+  $('fCond').value = '';
+  $('fInner').value = '';
+  $('fMiddle').value = '';
+  $('fOuter').value = '';
+  $('fRemarks').value = '';
+  editingId = null;
+  $('formTitle').innerHTML = '<span class="dot"></span>新規カルテを入力';
+  $('cancelEditBtn').style.display = 'none';
+}
+
+function fillFormFromEntry(entry){
+  $('fName').value = entry.name || '';
+  $('fDate').value = entry.date || '';
+  $('fStaff').value = entry.staff || '';
+  $('fCond').value = entry.cond || '';
+  $('fInner').value = entry.inner || '';
+  $('fMiddle').value = entry.middle || '';
+  $('fOuter').value = entry.outer || '';
+  $('fRemarks').value = entry.remarks || '';
+  editingId = entry.id;
+  $('formTitle').innerHTML = '<span class="dot"></span>カルテを編集中';
+  $('cancelEditBtn').style.display = 'inline-block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+async function saveEntry(){
+  const name = $('fName').value.trim();
+  const date = $('fDate').value;
+  const staff = $('fStaff').value.trim();
+  const cond = $('fCond').value.trim();
+  const inner = $('fInner').value.trim();
+  const middle = $('fMiddle').value.trim();
+  const outer = $('fOuter').value.trim();
+  const remarks = $('fRemarks').value.trim();
+
+  if(!name){
+    showStatus('お客様のお名前を入力してください', true);
+    return;
+  }
+  if(!date && !staff && !cond && !inner && !middle && !outer && !remarks){
+    showStatus('内容を入力してください', true);
+    return;
+  }
+
+  if(editingId){
+    const idx = entries.findIndex(e => e.id === editingId);
+    if(idx !== -1){
+      entries[idx] = {...entries[idx], name, date, staff, cond, inner, middle, outer, remarks};
+    }
+  }else{
+    entries.unshift({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      name, date, staff, cond, inner, middle, outer, remarks
+    });
+  }
+
+  await persist();
+  renderHistory();
+  showStatus('保存しました');
+  const savedEntry = { name, date, staff, cond, inner, middle, outer, remarks };
+  resetForm();
+  pushEntryToSheet(savedEntry);
+}
+
+function renderHistory(){
+  const list = $('historyList');
+  if(!entries.length){
+    list.innerHTML = '<p class="empty">まだ記録がありません。上のフォームから最初のカルテを保存してください。</p>';
+    return;
+  }
+
+  // お客様名でグループ化（＝スプレッドシートのシート単位に対応）
+  const groups = {};
+  entries.forEach(e => {
+    const key = e.name || '（お名前未入力）';
+    if(!groups[key]) groups[key] = [];
+    groups[key].push(e);
+  });
+  const names = Object.keys(groups).sort((a,b) => a.localeCompare(b, 'ja'));
+
+  list.innerHTML = names.map(name => {
+    const items = groups[name].sort((a,b) => (b.date||'').localeCompare(a.date||'') || 0);
+    const rows = items.map(e => `
+      <div class="entry" data-id="${e.id}">
+        <div class="entry-top">
+          <span class="entry-date">${formDateDisplay(e.date)}</span>
+          <span class="entry-staff">担当：${e.staff ? escapeHtml(e.staff) : '－'}</span>
+        </div>
+        ${e.cond ? `<div class="entry-cond">体調：${escapeHtml(e.cond)}</div>` : ''}
+        <div class="entry-zones">
+          <div class="zone-box"><span class="zk">目頭</span>${escapeHtml(e.inner) || '－'}</div>
+          <div class="zone-box"><span class="zk">真ん中</span>${escapeHtml(e.middle) || '－'}</div>
+          <div class="zone-box"><span class="zk">右</span>${escapeHtml(e.outer) || '－'}</div>
+        </div>
+        ${e.remarks ? `<div class="zone-box" style="margin-bottom:8px;"><span class="zk">備考</span>${escapeHtml(e.remarks)}</div>` : ''}
+        <div class="entry-actions">
+          <button class="edit" data-id="${e.id}">編集</button>
+          <button class="del" data-id="${e.id}">削除</button>
+        </div>
+      </div>
+    `).join('');
+    return `
+      <p class="customer-title">${escapeHtml(name)}<span class="customer-count">${items.length}件</span></p>
+      ${rows}
+    `;
+  }).join('');
+
+  list.querySelectorAll('.edit').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const entry = entries.find(x=>x.id===btn.dataset.id);
+      if(entry) fillFormFromEntry(entry);
+    });
+  });
+  list.querySelectorAll('.del').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      if(!confirm('このカルテを削除しますか？')) return;
+      entries = entries.filter(x=>x.id!==btn.dataset.id);
+      await persist();
+      renderHistory();
+      showStatus('削除しました');
+    });
+  });
+}
+
+function sanitizeSheetName(name){
+  let s = (name || '名前未設定').replace(/[\\\/\?\*\[\]:]/g, '　').trim();
+  if(!s) s = '名前未設定';
+  return s.slice(0, 31);
+}
+
+const SETTINGS_KEY = 'eyelash_karte_settings';
+let settings = { sheetUrl: '', webAppUrl: '' };
+
+async function loadSettings(){
+  try{
+    const res = await window.storage.get(SETTINGS_KEY, false);
+    settings = res ? JSON.parse(res.value) : { sheetUrl:'', webAppUrl:'' };
+  }catch(e){
+    settings = { sheetUrl:'', webAppUrl:'' };
+  }
+  $('fSheetUrl').value = settings.sheetUrl || '';
+  $('fWebAppUrl').value = settings.webAppUrl || '';
+  updateOpenSheetBtn();
+}
+
+async function saveSettings(){
+  settings.sheetUrl = $('fSheetUrl').value.trim();
+  settings.webAppUrl = $('fWebAppUrl').value.trim();
+  try{
+    await window.storage.set(SETTINGS_KEY, JSON.stringify(settings), false);
+    showSheetStatus('設定を保存しました');
+    updateOpenSheetBtn();
+  }catch(e){
+    showSheetStatus('設定の保存に失敗しました', true);
+  }
+}
+
+function updateOpenSheetBtn(){
+  const btn = $('openSheetBtn');
+  if(settings.sheetUrl){
+    btn.href = settings.sheetUrl;
+  }else{
+    btn.href = '#';
+  }
+}
+
+async function pushEntryToSheet(entry){
+  if(!settings.webAppUrl) return;
+  try{
+    await fetch(settings.webAppUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(entry)
+    });
+    showSheetStatus('スプレッドシートに送信しました');
+  }catch(err){
+    showSheetStatus('スプレッドシートへの送信に失敗しました（通信環境をご確認ください）', true);
+  }
+}
+
+async function pullFromSheet(){
+  if(!settings.webAppUrl){
+    showSheetStatus('先に「送信用」のApps Script URLを設定してください', true);
+    return;
+  }
+  try{
+    showSheetStatus('取得中…');
+    const res = await fetch(settings.webAppUrl, { method: 'GET' });
+    const data = await res.json();
+    const imported = [];
+    Object.keys(data).forEach(sheetName => {
+      const rows = data[sheetName] || [];
+      rows.forEach((r, i) => {
+        imported.push({
+          id: 'sheet_' + sheetName + '_' + i,
+          name: sheetName === '名前未設定' ? '' : sheetName,
+          date: r.date || '',
+          staff: r.staff || '',
+          cond: r.cond || '',
+          inner: r.inner || '',
+          middle: r.middle || '',
+          outer: r.outer || '',
+          remarks: r.remarks || ''
+        });
+      });
+    });
+    // シート由来のデータ（id: sheet_〜）を最新の内容で置き換え、ローカルのみの記録は残す
+    const localOnly = entries.filter(e => !String(e.id).startsWith('sheet_'));
+    entries = [...imported, ...localOnly];
+    await persist();
+    renderHistory();
+    showSheetStatus(`${imported.length}件のデータを取得しました`);
+  }catch(err){
+    showSheetStatus('取得に失敗しました。URLと共有設定をご確認ください', true);
+  }
+}
+
+function showSheetStatus(msg, isError){
+  const el = $('sheetStatusMsg');
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--danger)' : 'var(--sage)';
+  setTimeout(()=>{ if(el.textContent===msg) el.textContent=''; }, 3000);
+}
+
+function escapeHtml(str){
+  if(!str) return '';
+  return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+$('saveBtn').addEventListener('click', saveEntry);
+$('cancelEditBtn').addEventListener('click', resetForm);
+$('saveSettingsBtn').addEventListener('click', saveSettings);
+$('pullBtn').addEventListener('click', pullFromSheet);
+$('howToLink').addEventListener('click', () => {
+  const box = $('howToBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+});
+
+resetForm();
+loadEntries();
+loadSettings();
+</script>
+
+</body>
+</html>
