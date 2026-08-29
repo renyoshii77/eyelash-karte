@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アイラッシュ カルテ ビューアー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF5F1;
+    --card:#FFFFFF;
+    --ink:#3E332E;
+    --muted:#9C8A82;
+    --accent:#B3697A;
+    --accent-deep:#8F4F5E;
+    --gold:#C9A66B;
+    --line:#E7D9CF;
+    --line-soft:#F1E6DE;
+    --sage:#8C9A85;
+    --danger:#B25C4F;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:radial-gradient(1200px 600px at 50% -10%, #FDF0EA 0%, var(--bg) 55%);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:64px;
+  }
+  header{
+    padding:30px 20px 18px;
+    text-align:center;
+    position:relative;
+  }
+  header::after{
+    content:"";
+    display:block;
+    width:64px;
+    height:2px;
+    background:var(--gold);
+    margin:14px auto 0;
+    opacity:.7;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:.35em;
+    color:var(--accent-deep);
+    text-transform:uppercase;
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:24px;
+    margin:0;
+    letter-spacing:.06em;
+  }
+  .sub{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:8px;
+  }
+
+  main{ max-width:520px; margin:0 auto; padding:0 16px; }
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--line-soft);
+    box-shadow:0 10px 30px -18px rgba(94,58,53,.35);
+    padding:20px 18px;
+    margin-bottom:18px;
+  }
+
+  .field{ margin-bottom:10px; }
+  .field label{
+    display:block;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.08em;
+    margin-bottom:5px;
+  }
+  input[type=text]{
+    width:100%;
+    font-family:inherit;
+    font-size:15px;
+    color:var(--ink);
+    background:#FDFBFA;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    outline:none;
+  }
+  input:focus{ border-color:var(--accent); background:#fff; }
+
+  .btn{
+    appearance:none;
+    border:none;
+    border-radius:999px;
+    padding:12px 18px;
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:.05em;
+    cursor:pointer;
+  }
+  .btn-primary{
+    width:100%;
+    background:linear-gradient(90deg, var(--accent), var(--accent-deep));
+    color:#fff;
+    box-shadow:0 10px 20px -10px rgba(143,79,94,.6);
+  }
+  .btn-primary:active{ transform:translateY(1px); }
+  .btn-ghost{
+    background:none;
+    color:var(--muted);
+    font-size:12px;
+    text-decoration:underline;
+    padding:6px;
+  }
+
+  .status-msg{
+    text-align:center;
+    font-size:11px;
+    color:var(--sage);
+    min-height:16px;
+    margin-top:8px;
+  }
+  .status-msg.err{ color:var(--danger); }
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin:22px 4px 10px;
+  }
+  .toolbar input{ flex:1; }
+  .updated-at{
+    font-size:11px;
+    color:var(--muted);
+    text-align:right;
+    margin:0 4px 14px;
+  }
+
+  .customer{
+    background:var(--card);
+    border:1px solid var(--line-soft);
+    border-radius:14px;
+    margin-bottom:12px;
+    overflow:hidden;
+  }
+  .customer-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 16px;
+    cursor:pointer;
+  }
+  .customer-name{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:15px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .customer-name::before{
+    content:"";
+    width:4px; height:14px;
+    background:var(--accent);
+    border-radius:2px;
+    display:inline-block;
+  }
+  .customer-furigana{
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:.06em;
+    margin:-2px 0 0 12px;
+  }
+  .customer-meta{
+    font-size:11px;
+    color:var(--muted);
+  }
+  .chevron{
+    color:var(--muted);
+    font-size:12px;
+    transition:transform .15s;
+  }
+  .customer.open .chevron{ transform:rotate(180deg); }
+
+  .customer-body{
+    display:none;
+    padding:0 16px 16px;
+  }
+  .customer.open .customer-body{ display:block; }
+
+  .visit{
+    background:var(--bg);
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:10px;
+  }
+  .visit:last-child{ margin-bottom:0; }
+  .visit-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:6px;
+  }
+  .visit-date{ font-weight:700; font-size:13px; }
+  .visit-staff{ font-size:11px; color:var(--muted); }
+  .visit-cond{ font-size:11px; color:var(--sage); margin-bottom:8px; }
+
+  .health-line{
+    font-size:11px;
+    background:#fff;
+    border:1px solid var(--line-soft);
+    border-radius:8px;
+    padding:6px 7px;
+    margin-bottom:6px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 12px;
+  }
+  .health-line span.tag{
+    color:var(--accent-deep);
+    font-weight:700;
+  }
+  .health-line .memo{
+    width:100%;
+    color:var(--ink);
+    margin-top:2px;
+  }
+
+  .visit-zones{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:6px;
+    margin-bottom:6px;
+  }
+  .zone-box{
+    background:#fff;
+    border:1px solid var(--line-soft);
+    border-radius:8px;
+    padding:6px 7px;
+    font-size:11px;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .zone-box .zk{
+    display:block;
+    font-size:9px;
+    color:var(--accent-deep);
+    font-weight:700;
+    margin-bottom:2px;
+  }
+  .zone-box .spec{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .zone-box .memo{
+    display:block;
+    font-size:10px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .visit-remarks{
+    font-size:11px;
+    background:#fff;
+    border:1px solid var(--line-soft);
+    border-radius:8px;
+    padding:6px 7px;
+  }
+  .visit-photos{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+    margin-bottom:6px;
+  }
+  .visit-photos a{
+    display:block;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line-soft);
+    aspect-ratio:1/1;
+  }
+  .visit-photos img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .visit-photos .ph-label{
+    font-size:9px;
+    color:var(--muted);
+    text-align:center;
+    margin-top:2px;
+  }
+  .photo-error{
+    aspect-ratio:1/1;
+    border-radius:8px;
+    border:1px solid var(--danger);
+    background:#FBEEEC;
+    color:var(--danger);
+    font-size:10px;
+    line-height:1.4;
+    padding:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    word-break:break-word;
+  }
+
+  .empty{
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    padding:36px 10px;
+    line-height:1.8;
+  }
+
+  .settings-btn{
+    position:absolute;
+    top:22px;
+    right:18px;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:var(--card);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    cursor:pointer;
+    box-shadow:0 6px 16px -8px rgba(94,58,53,.35);
+  }
+
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(62,51,46,.45);
+    z-index:50;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-box{
+    width:100%;
+    max-width:520px;
+    background:var(--card);
+    border-radius:20px 20px 0 0;
+    padding:22px 20px 28px;
+    max-height:85vh;
+    overflow-y:auto;
+    box-shadow:0 -10px 30px -10px rgba(94,58,53,.4);
+  }
+  .modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .modal-head .form-title{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:16px;
+    margin:0;
+  }
+  .modal-close{
+    background:none;
+    border:none;
+    font-size:22px;
+    color:var(--muted);
+    cursor:pointer;
+    line-height:1;
+    padding:4px 6px;
+  }
+
+  select, textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:13px;
+    color:var(--ink);
+    background:#FDFBFA;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px 8px;
+    outline:none;
+  }
+  select{
+    -webkit-text-fill-color:var(--ink);
+    padding-right:22px;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F4F5E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 4px center;
+    background-size:14px;
+  }
+  select:focus, textarea:focus{ border-color:var(--accent); background:#fff; }
+  textarea{ resize:vertical; min-height:44px; line-height:1.5; }
+
+  input[type=date]{
+    width:100%;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+    background:#FDFBFA;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 10px;
+    outline:none;
+  }
+
+  .row2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .section-label{
+    font-family:'Shippori Mincho', serif;
+    font-size:13px;
+    font-weight:700;
+    color:var(--accent-deep);
+    margin:16px 0 8px;
+  }
+
+  .health-grid{ display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
+  .health-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:var(--bg);
+    border-radius:10px;
+    padding:8px 10px;
+  }
+  .health-row label{ font-size:11px; color:var(--ink); flex:1; line-height:1.4; }
+  .health-row select{ width:100px; flex-shrink:0; }
+
+  .zones-wrap{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  @media (min-width:640px){ .zones-wrap{ grid-template-columns:1fr 1fr 1fr; } }
+  .zone-card{ background:var(--bg); border-radius:12px; padding:8px; }
+  .zone-card .zone-name{
+    text-align:center; font-size:11px; font-weight:700; color:var(--accent-deep); margin-bottom:6px;
+  }
+  .zone-selects{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; margin-bottom:5px; }
+  .zone-selects .mini-label{ font-size:9px; color:var(--muted); text-align:center; display:block; margin-bottom:2px; }
+  .zone-card textarea{ min-height:36px; font-size:11px; padding:6px; }
+
+  .photo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  .photo-slot label{ display:block; font-size:11px; color:var(--muted); margin-bottom:5px; }
+  .photo-drop{
+    position:relative; border:1.5px dashed var(--line); border-radius:12px;
+    background:#FDFBFA; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center;
+    overflow:hidden; cursor:pointer;
+  }
+  .photo-drop input[type=file]{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .photo-drop img{ width:100%; height:100%; object-fit:cover; }
+  .photo-drop .placeholder{ font-size:11px; color:var(--muted); text-align:center; padding:8px; line-height:1.5; }
+  .photo-clear{
+    position:absolute; top:4px; right:4px; background:rgba(62,51,46,.6); color:#fff; border:none;
+    border-radius:50%; width:22px; height:22px; font-size:13px; line-height:1; cursor:pointer; z-index:2; display:none;
+  }
+  .photo-drop.has-img .photo-clear{ display:block; }
+
+  .edit-trigger{
+    font-size:11px;
+    color:var(--accent-deep);
+    text-decoration:underline;
+    cursor:pointer;
+    margin-top:6px;
+    display:inline-block;
+  }
+  .edit-trigger.disabled{
+    color:var(--muted);
+    text-decoration:none;
+    cursor:default;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Eyelash Record Viewer</p>
+  <h1>カルテ ビューアー</h1>
+  <p class="sub">スプレッドシートのデータをそのまま確認</p>
+  <button class="settings-btn" id="settingsOpenBtn" aria-label="設定">⚙︎</button>
+</header>
+
+<main>
+
+  <div class="toolbar" style="margin-top:8px;">
+    <input type="text" id="searchBox" placeholder="お客様のお名前で検索">
+    <button class="btn" id="refreshBtn" style="background:var(--gold);color:#fff;">更新</button>
+  </div>
+  <p class="updated-at" id="updatedAt"></p>
+  <p class="status-msg" id="statusMsg"></p>
+
+  <div id="list"></div>
+
+</main>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <p class="form-title">連携設定</p>
+      <button class="modal-close" id="settingsCloseBtn">×</button>
+    </div>
+    <div class="field">
+      <label for="fWebAppUrl">Apps Script ウェブアプリURL</label>
+      <input type="text" id="fWebAppUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    </div>
+    <button class="btn btn-primary" id="loadBtn">この設定で読み込む</button>
+    <p class="btn-ghost" id="howToLink" style="text-align:center;cursor:pointer;">URLの調べ方</p>
+    <div id="howToBox" style="display:none;font-size:12px;line-height:1.9;color:var(--ink);background:var(--bg);border-radius:10px;padding:12px 14px;margin-top:6px;">
+      カルテ入力アプリの設定（右上の⚙）で使っているApps ScriptのウェブアプリURL（送信用）と同じものをここに貼り付けてください。
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <p class="form-title" id="editModalTitle">カルテを編集</p>
+      <button class="modal-close" id="editCloseBtn">×</button>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="eDate">年月日</label>
+        <input type="date" id="eDate">
+      </div>
+      <div class="field">
+        <label for="eStaff">担当</label>
+        <input type="text" id="eStaff">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="eCond">体調</label>
+      <input type="text" id="eCond">
+    </div>
+
+    <p class="section-label">健康状態・アレルギー確認</p>
+    <div class="health-grid">
+      <div class="health-row">
+        <label>目・目元のかゆみ、腫れ、赤み</label>
+        <select id="eEyeItch">
+          <option value="">選択</option><option value="いいえ">いいえ</option><option value="はい">はい</option><option value="不明">不明</option>
+        </select>
+      </div>
+      <div class="health-row">
+        <label>アレルギー歴（グルー・化粧品など）</label>
+        <select id="eAllergy">
+          <option value="">選択</option><option value="いいえ">いいえ</option><option value="はい">はい</option><option value="不明">不明</option>
+        </select>
+      </div>
+      <div class="health-row">
+        <label>妊娠中・授乳中</label>
+        <select id="ePregnancy">
+          <option value="">選択</option><option value="いいえ">いいえ</option><option value="はい">はい</option><option value="不明">不明</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="eHealthMemo">健康状態メモ</label>
+      <textarea id="eHealthMemo"></textarea>
+    </div>
+
+    <p class="section-label">デザイン記録</p>
+    <div class="zones-wrap">
+      <div class="zone-card">
+        <p class="zone-name">目頭</p>
+        <div class="zone-selects">
+          <div><span class="mini-label">長さ</span>
+            <select id="eInnerLength"><option value="">-</option><option>6mm</option><option>7mm</option><option>8mm</option><option>9mm</option><option>10mm</option><option>11mm</option><option>12mm</option><option>13mm</option></select>
+          </div>
+          <div><span class="mini-label">カール</span>
+            <select id="eInnerCurl"><option value="">-</option><option>J</option><option>B</option><option>C</option><option>CC</option><option>D</option><option>DD</option></select>
+          </div>
+          <div><span class="mini-label">太さ</span>
+            <select id="eInnerThickness"><option value="">-</option><option>0.10mm</option><option>0.12mm</option><option>0.15mm</option><option>0.18mm</option><option>0.20mm</option></select>
+          </div>
+        </div>
+        <textarea id="eInnerMemo" placeholder="メモ"></textarea>
+      </div>
+      <div class="zone-card">
+        <p class="zone-name">真ん中</p>
+        <div class="zone-selects">
+          <div><span class="mini-label">長さ</span>
+            <select id="eMiddleLength"><option value="">-</option><option>8mm</option><option>9mm</option><option>10mm</option><option>11mm</option><option>12mm</option><option>13mm</option><option>14mm</option><option>15mm</option></select>
+          </div>
+          <div><span class="mini-label">カール</span>
+            <select id="eMiddleCurl"><option value="">-</option><option>J</option><option>B</option><option>C</option><option>CC</option><option>D</option><option>DD</option></select>
+          </div>
+          <div><span class="mini-label">太さ</span>
+            <select id="eMiddleThickness"><option value="">-</option><option>0.10mm</option><option>0.12mm</option><option>0.15mm</option><option>0.18mm</option><option>0.20mm</option></select>
+          </div>
+        </div>
+        <textarea id="eMiddleMemo" placeholder="メモ"></textarea>
+      </div>
+      <div class="zone-card">
+        <p class="zone-name">右（目尻）</p>
+        <div class="zone-selects">
+          <div><span class="mini-label">長さ</span>
+            <select id="eOuterLength"><option value="">-</option><option>6mm</option><option>7mm</option><option>8mm</option><option>9mm</option><option>10mm</option><option>11mm</option><option>12mm</option><option>13mm</option></select>
+          </div>
+          <div><span class="mini-label">カール</span>
+            <select id="eOuterCurl"><option value="">-</option><option>J</option><option>B</option><option>C</option><option>CC</option><option>D</option><option>DD</option></select>
+          </div>
+          <div><span class="mini-label">太さ</span>
+            <select id="eOuterThickness"><option value="">-</option><option>0.10mm</option><option>0.12mm</option><option>0.15mm</option><option>0.18mm</option><option>0.20mm</option></select>
+          </div>
+        </div>
+        <textarea id="eOuterMemo" placeholder="メモ"></textarea>
+      </div>
+    </div>
+
+    <p class="section-label">施術前後の写真</p>
+    <div class="photo-grid">
+      <div class="photo-slot">
+        <label>施術前</label>
+        <div class="photo-drop" id="eBeforeDrop">
+          <span class="placeholder">タップして撮影・選択<br>（貼り付けも可）</span>
+          <img id="eBeforePreview" style="display:none;">
+          <input type="file" id="eBeforePhoto" accept="image/*">
+          <button type="button" class="photo-clear" id="eBeforeClear">×</button>
+        </div>
+      </div>
+      <div class="photo-slot">
+        <label>施術後</label>
+        <div class="photo-drop" id="eAfterDrop">
+          <span class="placeholder">タップして撮影・選択<br>（貼り付けも可）</span>
+          <img id="eAfterPreview" style="display:none;">
+          <input type="file" id="eAfterPhoto" accept="image/*">
+          <button type="button" class="photo-clear" id="eAfterClear">×</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="eRemarks">備考</label>
+      <textarea id="eRemarks"></textarea>
+    </div>
+
+    <button class="btn btn-primary" id="editSaveBtn">この内容で更新する</button>
+    <p class="status-msg" id="editStatusMsg"></p>
+  </div>
+</div>
+
+<script>
+const SETTINGS_KEY = 'eyelash_karte_settings';
+const DEFAULT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzS0Z0C2XAH8QGIUC2w6hBbF7X44vhO9gkDQvJD2yT1eOcv0tlgQ7j7rTPWTi-v9_AB/exec';
+const $ = (id) => document.getElementById(id);
+let sheetData = {}; // { customerName: [ {date,staff,cond,inner,middle,outer,remarks}, ... ] }
+let webAppUrl = DEFAULT_WEBAPP_URL;
+
+async function loadSavedUrl(){
+  try{
+    const res = await window.storage.get(SETTINGS_KEY, false);
+    if(res){
+      const s = JSON.parse(res.value);
+      webAppUrl = s.webAppUrl || DEFAULT_WEBAPP_URL;
+    }
+  }catch(e){ /* 保存済み設定が見つからなければ既定のURLを使う */ }
+  $('fWebAppUrl').value = webAppUrl;
+}
+
+async function saveUrl(url){
+  try{
+    let s = {};
+    try{
+      const res = await window.storage.get(SETTINGS_KEY, false);
+      if(res) s = JSON.parse(res.value);
+    }catch(e){}
+    s.webAppUrl = url;
+    await window.storage.set(SETTINGS_KEY, JSON.stringify(s), false);
+  }catch(e){ /* 保存できなくても閲覧は続行 */ }
+}
+
+function showStatus(msg, isError){
+  const el = $('statusMsg');
+  el.textContent = msg;
+  el.classList.toggle('err', !!isError);
+}
+
+async function fetchData(){
+  const url = $('fWebAppUrl').value.trim();
+  if(!url){
+    showStatus('Apps ScriptのURLを入力してください', true);
+    return;
+  }
+  webAppUrl = url;
+  showStatus('読み込み中…');
+  try{
+    const res = await fetch(webAppUrl, { method: 'GET' });
+    const data = await res.json();
+    sheetData = data || {};
+    await saveUrl(url);
+    render();
+    const now = new Date();
+    $('updatedAt').textContent = '最終更新：' + now.toLocaleString('ja-JP', {hour12:false});
+    showStatus('読み込みました');
+  }catch(err){
+    showStatus('読み込みに失敗しました： ' + (err && err.message ? err.message : err), true);
+  }
+}
+
+function formatDate(iso){
+  if(!iso) return '（日付未入力）';
+  const s = String(iso);
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return `${m[1]}年${m[2]}月${m[3]}日`;
+  return s;
+}
+
+function furiganaFor(visits){
+  if(!visits || !visits.length) return '';
+  const withFurigana = visits.find(v => v.furigana);
+  return withFurigana ? withFurigana.furigana : '';
+}
+
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function zoneSpec(v, prefix, label){
+  const len = v[prefix + 'Length'] || '';
+  const curl = v[prefix + 'Curl'] || '';
+  const thick = v[prefix + 'Thickness'] || '';
+  const memo = v[prefix + 'Memo'] || '';
+  const specParts = [len, curl, thick].filter(Boolean);
+  const specText = specParts.length ? specParts.join(' / ') : '－';
+  return `
+    <div class="zone-box">
+      <span class="zk">${label}</span>
+      <span class="spec">${escapeHtml(specText)}</span>
+      ${memo ? `<span class="memo">${escapeHtml(memo)}</span>` : ''}
+    </div>
+  `;
+}
+
+function healthLine(v){
+  const items = [];
+  if(v.eyeItch) items.push(`<span class="tag">かゆみ/腫れ</span> ${escapeHtml(v.eyeItch)}`);
+  if(v.allergy) items.push(`<span class="tag">アレルギー</span> ${escapeHtml(v.allergy)}`);
+  if(v.pregnancy) items.push(`<span class="tag">妊娠/授乳</span> ${escapeHtml(v.pregnancy)}`);
+  if(!items.length && !v.healthMemo) return '';
+  return `
+    <div class="health-line">
+      ${items.join('')}
+      ${v.healthMemo ? `<span class="memo">${escapeHtml(v.healthMemo)}</span>` : ''}
+    </div>
+  `;
+}
+
+function photosBlock(v){
+  const isErr = (s) => s && s.indexOf('エラー:') === 0;
+  if(!v.beforePhoto && !v.afterPhoto) return '';
+  const before = v.beforePhoto
+    ? (isErr(v.beforePhoto)
+        ? `<div><div class="photo-error">${escapeHtml(v.beforePhoto)}</div><div class="ph-label">施術前</div></div>`
+        : `<div><a href="${v.beforePhoto}" target="_blank"><img src="${v.beforePhoto}" loading="lazy"></a><div class="ph-label">施術前</div></div>`)
+    : '<div></div>';
+  const after = v.afterPhoto
+    ? (isErr(v.afterPhoto)
+        ? `<div><div class="photo-error">${escapeHtml(v.afterPhoto)}</div><div class="ph-label">施術後</div></div>`
+        : `<div><a href="${v.afterPhoto}" target="_blank"><img src="${v.afterPhoto}" loading="lazy"></a><div class="ph-label">施術後</div></div>`)
+    : '<div></div>';
+  return `<div class="visit-photos">${before}${after}</div>`;
+}
+
+function render(){
+  const list = $('list');
+  const q = $('searchBox').value.trim();
+  const names = Object.keys(sheetData)
+    .filter(n => !q || n.includes(q))
+    .sort((a,b) => {
+      const fa = furiganaFor(sheetData[a]) || a;
+      const fb = furiganaFor(sheetData[b]) || b;
+      return fa.localeCompare(fb, 'ja');
+    });
+
+  if(!names.length){
+    list.innerHTML = `<p class="empty">${Object.keys(sheetData).length ? '該当するお客様が見つかりません' : 'まだデータがありません。上のURLからスプレッドシートを読み込んでください。'}</p>`;
+    return;
+  }
+
+  list.innerHTML = names.map((name, idx) => {
+    const visits = [...(sheetData[name] || [])].sort((a,b) => String(b.date||'').localeCompare(String(a.date||'')));
+    const furigana = furiganaFor(sheetData[name]);
+    const visitsHtml = visits.map((v, vIdx) => `
+      <div class="visit">
+        <div class="visit-top">
+          <span class="visit-date">${formatDate(v.date)}</span>
+          <span class="visit-staff">担当：${v.staff ? escapeHtml(v.staff) : '－'}</span>
+        </div>
+        ${v.cond ? `<div class="visit-cond">体調：${escapeHtml(v.cond)}</div>` : ''}
+        ${healthLine(v)}
+        <div class="visit-zones">
+          ${zoneSpec(v, 'inner', '目頭')}
+          ${zoneSpec(v, 'middle', '真ん中')}
+          ${zoneSpec(v, 'outer', '右')}
+        </div>
+        ${photosBlock(v)}
+        ${v.remarks ? `<div class="visit-remarks"><span class="zk">備考</span>${escapeHtml(v.remarks)}</div>` : ''}
+        ${v.id
+          ? `<span class="edit-trigger" data-name="${escapeHtml(name)}" data-vidx="${vIdx}">編集する</span>`
+          : `<span class="edit-trigger disabled">編集不可（古い記録）</span>`}
+      </div>
+    `).join('');
+
+    return `
+      <div class="customer${idx===0 ? ' open' : ''}" data-name="${escapeHtml(name)}">
+        <div class="customer-head">
+          <div>
+            <span class="customer-name">${escapeHtml(name)}</span>
+            ${furigana ? `<div class="customer-furigana">${escapeHtml(furigana)}</div>` : ''}
+          </div>
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span class="customer-meta">${visits.length}件</span>
+            <span class="chevron">▼</span>
+          </span>
+        </div>
+        <div class="customer-body" data-visits='${JSON.stringify(visits).replace(/'/g,"&#39;")}'>${visitsHtml}</div>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.customer-head').forEach(head => {
+    head.addEventListener('click', () => {
+      head.closest('.customer').classList.toggle('open');
+    });
+  });
+
+  list.querySelectorAll('.edit-trigger[data-name]').forEach(trigger => {
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const name = trigger.dataset.name;
+      const vIdx = Number(trigger.dataset.vidx);
+      const visits = trigger.closest('.customer-body').dataset.visits;
+      const visitList = JSON.parse(visits);
+      openEditModal(name, visitList[vIdx]);
+    });
+  });
+}
+
+$('loadBtn').addEventListener('click', async () => {
+  await fetchData();
+  $('settingsModal').classList.remove('open');
+});
+$('refreshBtn').addEventListener('click', fetchData);
+$('searchBox').addEventListener('input', render);
+$('howToLink').addEventListener('click', () => {
+  const box = $('howToBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+});
+$('settingsOpenBtn').addEventListener('click', () => {
+  $('settingsModal').classList.add('open');
+});
+$('settingsCloseBtn').addEventListener('click', () => {
+  $('settingsModal').classList.remove('open');
+});
+$('settingsModal').addEventListener('click', (e) => {
+  if(e.target.id === 'settingsModal') $('settingsModal').classList.remove('open');
+});
+
+// ---- 編集モーダル ----
+const EDIT_FIELD_IDS = [
+  'eDate','eStaff','eCond',
+  'eEyeItch','eAllergy','ePregnancy','eHealthMemo',
+  'eInnerLength','eInnerCurl','eInnerThickness','eInnerMemo',
+  'eMiddleLength','eMiddleCurl','eMiddleThickness','eMiddleMemo',
+  'eOuterLength','eOuterCurl','eOuterThickness','eOuterMemo',
+  'eRemarks'
+];
+const editPhotoData = { before: '', after: '' };
+let editingCustomerName = '';
+let editingRowId = '';
+let editingFurigana = '';
+
+function resizeImageFile(file, maxSize){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w > h && w > maxSize){ h = Math.round(h * maxSize / w); w = maxSize; }
+        else if(h > maxSize){ w = Math.round(w * maxSize / h); h = maxSize; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function setEditPhotoPreview(key, url){
+  editPhotoData[key] = url || '';
+  const preview = $('e' + key.charAt(0).toUpperCase() + key.slice(1) + 'Preview');
+  const drop = $('e' + key.charAt(0).toUpperCase() + key.slice(1) + 'Drop');
+  if(url){
+    preview.src = url;
+    preview.style.display = 'block';
+    drop.classList.add('has-img');
+  }else{
+    preview.style.display = 'none';
+    preview.src = '';
+    drop.classList.remove('has-img');
+  }
+}
+
+function extractImageFromClipboard(e){
+  const items = (e.clipboardData && e.clipboardData.items) || [];
+  for(let i=0; i<items.length; i++){
+    if(items[i].type.indexOf('image') !== -1){
+      return items[i].getAsFile();
+    }
+  }
+  return null;
+}
+
+function setupEditPhotoSlot(key, inputId, clearId){
+  const input = $(inputId);
+  const clearBtn = $(clearId);
+  const dropId = 'e' + key.charAt(0).toUpperCase() + key.slice(1) + 'Drop';
+  const drop = $(dropId);
+
+  input.addEventListener('change', async () => {
+    const file = input.files[0];
+    if(!file) return;
+    try{
+      const dataUrl = await resizeImageFile(file, 900);
+      setEditPhotoPreview(key, dataUrl);
+    }catch(e){
+      showEditStatus('写真の読み込みに失敗しました', true);
+    }
+  });
+  clearBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setEditPhotoPreview(key, '');
+    input.value = '';
+  });
+
+  drop.setAttribute('tabindex', '0');
+  drop.addEventListener('paste', async (e) => {
+    const file = extractImageFromClipboard(e);
+    if(!file) return;
+    e.preventDefault();
+    try{
+      const dataUrl = await resizeImageFile(file, 900);
+      setEditPhotoPreview(key, dataUrl);
+    }catch(err){
+      showEditStatus('画像の貼り付けに失敗しました', true);
+    }
+  });
+}
+setupEditPhotoSlot('before', 'eBeforePhoto', 'eBeforeClear');
+setupEditPhotoSlot('after', 'eAfterPhoto', 'eAfterClear');
+
+function showEditStatus(msg, isError){
+  const el = $('editStatusMsg');
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--danger)' : 'var(--sage)';
+}
+
+function openEditModal(name, visit){
+  editingCustomerName = name;
+  editingRowId = visit.id;
+  editingFurigana = visit.furigana || '';
+  $('editModalTitle').textContent = name + ' さんのカルテを編集';
+
+  $('eDate').value = visit.date || '';
+  $('eStaff').value = visit.staff || '';
+  $('eCond').value = visit.cond || '';
+  $('eEyeItch').value = visit.eyeItch || '';
+  $('eAllergy').value = visit.allergy || '';
+  $('ePregnancy').value = visit.pregnancy || '';
+  $('eHealthMemo').value = visit.healthMemo || '';
+  $('eInnerLength').value = visit.innerLength || '';
+  $('eInnerCurl').value = visit.innerCurl || '';
+  $('eInnerThickness').value = visit.innerThickness || '';
+  $('eInnerMemo').value = visit.innerMemo || '';
+  $('eMiddleLength').value = visit.middleLength || '';
+  $('eMiddleCurl').value = visit.middleCurl || '';
+  $('eMiddleThickness').value = visit.middleThickness || '';
+  $('eMiddleMemo').value = visit.middleMemo || '';
+  $('eOuterLength').value = visit.outerLength || '';
+  $('eOuterCurl').value = visit.outerCurl || '';
+  $('eOuterThickness').value = visit.outerThickness || '';
+  $('eOuterMemo').value = visit.outerMemo || '';
+  $('eRemarks').value = visit.remarks || '';
+  setEditPhotoPreview('before', visit.beforePhoto || '');
+  setEditPhotoPreview('after', visit.afterPhoto || '');
+  $('editStatusMsg').textContent = '';
+
+  $('editModal').classList.add('open');
+}
+
+async function saveEdit(){
+  if(!editingRowId){
+    showEditStatus('この記録は編集できません', true);
+    return;
+  }
+  if(!webAppUrl){
+    showEditStatus('先にApps ScriptのURLを設定してください', true);
+    return;
+  }
+
+  const payload = { action: 'update', name: editingCustomerName, furigana: editingFurigana, rowId: editingRowId };
+  EDIT_FIELD_IDS.forEach(id => {
+    const key = id.charAt(1).toLowerCase() + id.slice(2);
+    payload[key] = $(id).value.trim ? $(id).value.trim() : $(id).value;
+  });
+  payload.beforePhoto = editPhotoData.before;
+  payload.afterPhoto = editPhotoData.after;
+
+  try{
+    showEditStatus('更新中…');
+    await fetch(webAppUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    showEditStatus('更新しました');
+    setTimeout(async () => {
+      $('editModal').classList.remove('open');
+      await fetchData();
+    }, 500);
+  }catch(err){
+    showEditStatus('更新に失敗しました（通信環境をご確認ください）', true);
+  }
+}
+
+$('editSaveBtn').addEventListener('click', saveEdit);
+$('editCloseBtn').addEventListener('click', () => {
+  $('editModal').classList.remove('open');
+});
+$('editModal').addEventListener('click', (e) => {
+  if(e.target.id === 'editModal') $('editModal').classList.remove('open');
+});
+
+(async () => {
+  await loadSavedUrl();
+  fetchData();
+})();
+</script>
+
+</body>
+</html>
